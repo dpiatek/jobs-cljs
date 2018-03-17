@@ -11,3 +11,8 @@
   :jobs
   (fn [db _]
     (:jobs db)))
+
+(re-frame/reg-sub
+  :jobs-service-status
+  (fn [db _]
+    (:jobs-service-status db)))

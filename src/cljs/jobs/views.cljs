@@ -8,7 +8,7 @@
   (let [jobs (re-frame/subscribe [:jobs])]
     (fn []
       [:ul
-        (for [job (seq @jobs) :let [id (first job)]]
+        (for [job (seq @jobs) :let [id (:id (last job))]]
           ^{:key id} [:li
                       [:a {:href (url-for :show :id id)} "Show job" id]])])))
 
@@ -33,3 +33,10 @@
     (fn []
       (let [{:keys [handler route-params]} @active-route]
         [routes handler route-params]))))
+
+(defn top []
+  (let [jobs-service-status  (re-frame.core/subscribe [:jobs-service-status])]
+    (case @jobs-service-status
+      :ok [main]
+      :loading [:div "Loading jobs ..."]
+      :error [:div "Error loading jobs."])))
