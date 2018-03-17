@@ -44,8 +44,8 @@
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
                     :preloads             [devtools.preload]
-                    :external-config      {:devtools/config {:features-to-install :all}}
-                    }}
+                    :external-config      {:devtools/config {:features-to-install :all}}}}
+
 
     {:id           "min"
      :source-paths ["src/cljs"]
@@ -54,10 +54,10 @@
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
-                    :pretty-print    false}}
+                    :pretty-print    false}}]}
 
 
-    ]}
+
 
   :main jobs.server
 
@@ -65,5 +65,5 @@
 
   :uberjar-name "jobs.jar"
 
-  :prep-tasks [["cljsbuild" "once" "min"] "compile"]
-  )
+  :prep-tasks [["cljsbuild" "once" "min"] "compile"])
+
