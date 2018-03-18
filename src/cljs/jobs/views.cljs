@@ -6,18 +6,19 @@
 
 (defn job-li [{:keys [id title company keywords]}]
   ^{:key id}
-  [:li
-    [:a {:href (url-for :show :id id)} title]
-    [:div company]
-    [:div
+  [:li.jobs-li
+    [:a.jobs-title {:href (url-for :show :id id)} title]
+    [:div.jobs-company company]
+    [:div.jobs-keywords
       (str/join ", " keywords)]])
 
 (defn jobs []
   (let [jobs (re-frame/subscribe [:jobs])]
     (fn []
       [:div
-        [:a {:href (url-for :new)} "Add job"]
-        [:ul
+        [:h1.title "Jobs"]
+        [:a.btn {:href (url-for :new)} "Add job"]
+        [:ul.jobs-list
           (for [job (seq @jobs)]
             (job-li (last job)))]])))
 
@@ -25,20 +26,22 @@
   (let [id (:id params)
         jobs (re-frame/subscribe [:jobs])
         {:keys [title company keywords]} (get @jobs (keyword id))]
-    [:div
-      [:div title]
-      [:div company]
-      [:div (str/join ", " keywords)]
-      [:button {:type "button" :on-click #(re-frame/dispatch [:edit-job id])} "Edit job"]
-      [:button {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
-      [:a {:href (url-for :list)} "Back to listing"]]))
+    [:div.job-container
+      [:h1.title "Job"]
+      [:div.jobs-title.ut-no-link title]
+      [:div.jobs-company company]
+      [:div.jobs-keywords (str/join ", " keywords)]
+      [:div.control-container
+        [:button.btn.ut-margin-right-sm.th-secondary-btn {:type "button" :on-click #(re-frame/dispatch [:edit-job id])} "Edit job"]
+        [:button.btn.ut-margin-right-sm.th-danger-btn {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
+        [:a.back-to-listing {:href (url-for :list)} "Back to listing"]]]))
 
 (defn text-field [label]
   (let [val (re-frame/subscribe [:edit-form label])
         evt #(re-frame/dispatch [:update-job-form label (-> % .-target .-value)])]
-    [:label
+    [:label.text-field
       (str/capitalize (name label))
-      [:input {:value @val :type "text" :on-change evt}]]))
+      [:input {:value @val :type "text" :on-change evt :required true}]]))
 
 (defn keyword-handler [event]
   (if (= (-> event .-key) "Enter")
@@ -47,42 +50,47 @@
       (set! (-> event .-target .-value) ""))))
 
 (defn keyword-field []
-  [:label
+  [:label.text-field
     "Keywords"
-    [:input {:type "text" :on-key-down keyword-handler :placeholder "Press enter to add"}]])
+    [:span "(optional)"]
+    [:input {:type "text" :on-key-down keyword-handler :placeholder "Press Enter to add"}]])
 
 (defn keywords-list []
   (let [val (re-frame/subscribe [:edit-form :keywords])]
-    [:ul
+    [:ul.keywords-list
       (for [kw @val]
         ^{:key kw}
-        [:li
+        [:li.keywords-li
           [:label
             kw
             [:button {:type "button"
-                      :on-click #(re-frame/dispatch [:delete-job-keyword kw])} "X"]]])]))
+                      :on-click #(re-frame/dispatch [:delete-job-keyword kw])} "×"]]])]))
 
 (defn edit [{:keys [id]}]
   (fn []
     [:div
-      [:form
+      [:h1.title "Edit job"]
+      [:form.form-container
         [text-field :title]
         [text-field :company]
         [keyword-field]
         [keywords-list]
-        [:button {:type "button" :on-click #(re-frame/dispatch [:submit-job-update id])} "Submit"]
-        [:a {:href (url-for :list)} "Back to listing"]]]))
+        [:div.control-container
+          [:button.btn {:type "button" :on-click #(re-frame/dispatch [:submit-job-update id])} "Submit"]
+          [:a.back-to-listing {:href (url-for :list)} "Back to listing"]]]]))
 
 (defn new []
   (fn []
     [:div
-      [:form
+      [:h1.title "Add job"]
+      [:form.form-container
         [text-field :title]
         [text-field :company]
         [keyword-field]
         [keywords-list]
-        [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
-        [:a {:href (url-for :list)} "Back to listing"]]]))
+        [:div.control-container
+          [:button.btn {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
+          [:a.back-to-listing {:href (url-for :list)} "Back to listing"]]]]))
 
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
@@ -94,7 +102,8 @@
   (let [active-route (re-frame/subscribe [:active-route])]
     (fn []
       (let [{:keys [handler route-params]} @active-route]
-        [routes handler route-params]))))
+        [:div.container
+          [routes handler route-params]]))))
 
 (defn top []
   (let [jobs-service-status  (re-frame.core/subscribe [:jobs-service-status])]

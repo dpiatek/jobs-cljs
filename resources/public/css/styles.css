@@ -1,0 +1,178 @@
+body {
+  background-color: #eee;
+  margin: 0;
+  padding: 10px;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+}
+
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+  background-color: #eaeaea;
+  padding: 10px;
+}
+
+.title {
+  padding: 10px;
+  margin: 0;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 600;
+}
+
+.btn {
+  text-decoration: none;
+  display: inline-block;
+  background-color: lightgreen;
+  border: 0;
+  border-right: 2px solid lightgoldenrodyellow;
+  padding: 10px 13px;
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  color: forestgreen;
+  cursor: pointer;
+}
+
+.th-secondary-btn {
+  background-color: #aaa;
+  border-right: 0;
+  color: white;
+}
+
+.th-danger-btn {
+  background-color: #e52424;
+  border-right: 0;
+  color: white;
+}
+
+.jobs-list {
+  clear: both;
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jobs-li {
+  background-color: #fefef6;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.jobs-title {
+  font-size: 18px;
+  text-decoration: none;
+  border-bottom: 2px solid lightgreen;
+  margin-bottom: 5px;
+  display: inline-block;
+  color: black;
+  line-height: 1.4;
+}
+
+.jobs-company {
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: black
+}
+
+.jobs-keywords {
+  font-size: 14px;
+  line-height: 1.4em;
+  color: #888;
+}
+
+.control-container {
+  margin-top: 25px;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.back-to-listing {
+  float: right;
+  text-decoration: none;
+  color: black;
+  padding: 7px 10px;
+  font-size: 14px;
+  line-height: 1.4em;
+}
+
+.job-container {
+  background-color: #fefef6;
+  padding: 10px;
+}
+
+.form-container {
+  max-width: 360px;
+  margin: 20px auto;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+}
+
+.text-field {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4em;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.text-field input {
+  display: block;
+  margin-top: 5px;
+  border: 0;
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  border-left: 1px solid transparent;
+  border-top: 1px solid transparent;
+  font-size: 14px;
+  padding: 5px;
+  width: calc(100% - 10px);
+}
+
+.text-field input:focus {
+  border: 1px solid lightgreen;
+  outline: none;
+}
+
+.text-field span {
+  margin-left: 5px;
+  color: #999;
+  font-style: italic;
+}
+
+.keywords-list {
+  padding: 0;
+  margin: -10px 0 10px 20px;
+}
+
+.keywords-li label {
+  font-size: 14px;
+  line-height: 1.4em;
+}
+
+.keywords-li button {
+  font-family: 'IBM Plex Sans Condensed', sans-serif;
+  font-size: 19px;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  margin-left: 5px;
+  color: red;
+  cursor: pointer;
+  position: relative;
+  top: 2px;
+  line-height: 1;
+}
+
+.ut-no-link {
+  border-bottom: 0;
+}
+
+.ut-float-right {
+  float: right;
+}
+
+.ut-margin-right-sm {
+  margin-right: 5px;
+}
