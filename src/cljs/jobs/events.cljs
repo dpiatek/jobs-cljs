@@ -20,12 +20,6 @@
   (fn [{:keys [job-form] :as db} [_ label val]]
     (assoc db :job-form (assoc job-form label val))))
 
-(re-frame/reg-event-db
-  :reset-status
-  (fn [db _]
-    (assoc db :create-status :init)
-    (assoc db :delete-status :init)))
-
 (re-frame/reg-event-fx
   :fetch-jobs
   (fn
@@ -64,15 +58,13 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [:process-job-response]
-                  :on-failure      [:failed-job-response]}
-     :db  (assoc db :create-status :loading)}))
+                  :on-failure      [:failed-job-response]}}))
 
 (re-frame/reg-event-db
   :process-job-response
   (fn
     [db [_ {:keys [job]} response]]
     (-> db
-      (assoc :create-status :ok)
       (assoc :job-form {})
       (assoc-in [:jobs (keyword (str (:id job)))] job))))
 
@@ -80,8 +72,7 @@
   :failed-job-response
   (fn
     [db [_ {:keys [jobs]} response]]
-    (-> db
-        (assoc :create-status :error))))
+    db))
 
 
 (re-frame/reg-event-fx
@@ -93,8 +84,7 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [:process-delete-response id]
-                  :on-failure      [:failed-delete-response]}
-     :db  (assoc db :delete-status :loading)}))
+                  :on-failure      [:failed-delete-response]}}))
 
 (re-frame/reg-event-db
   :process-delete-response
@@ -107,5 +97,4 @@
   :failed-delete-response
   (fn
     [db [_ {:keys [jobs]} response]]
-    (-> db
-      (assoc :delete-status :error))))
+    db))

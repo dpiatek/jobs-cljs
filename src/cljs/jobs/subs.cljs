@@ -18,16 +18,6 @@
     (:jobs-service-status db)))
 
 (re-frame/reg-sub
-  :create-status
-  (fn [db _]
-    (:create-status db)))
-
-(re-frame/reg-sub
-  :delete-status
-  (fn [db _]
-    (:delete-status db)))
-
-(re-frame/reg-sub
   :edit-form
   (fn [db [_ label]]
     (label (:job-form db))))

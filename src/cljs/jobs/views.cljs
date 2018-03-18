@@ -24,16 +24,13 @@
 (defn show [params]
   (let [id (:id params)
         jobs (re-frame/subscribe [:jobs])
-        status @(re-frame/subscribe [:delete-status])
         {:keys [title company keywords]} (get @jobs (keyword id))]
-    (fn []
-      [:div
-        [:div title]
-        [:div company]
-        [:div
-          (str/join ", " keywords)]
-        [:button {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
-        [:a {:href (url-for :list)} "Back to listing"]])))
+    [:div
+      [:div title]
+      [:div company]
+      [:div (str/join ", " keywords)]
+      [:button {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
+      [:a {:href (url-for :list)} "Back to listing"]]))
 
 (defn edit []
   (fn []
@@ -48,19 +45,13 @@
 
 (defn new []
   (fn []
-    (let [status @(re-frame/subscribe [:create-status])]
-      [:div
-        [:form
-          [text-field :title]
-          [text-field :company]
-          [text-field :keywords]
-          [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
-          (case status
-            :ok [:div "Job added"]
-            :loading [:div "Creating new job ..."]
-            :error [:div "There was an error when creating the job."]
-            :init [:div])]
-        [:a {:href (url-for :list)} "Back to listing"]])))
+    [:div
+      [:form
+        [text-field :title]
+        [text-field :company]
+        [text-field :keywords]
+        [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
+        [:a {:href (url-for :list)} "Back to listing"]]]))
 
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
