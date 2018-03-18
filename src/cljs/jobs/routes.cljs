@@ -5,6 +5,7 @@
             [pushy.core    :as pushy]))
 
 (def routes     ["/" {""                     :list
+                       "new"                 :new
                       ["show/" [#"\d+" :id]] :show
                       ["edit/" [#"\d+" :id]] :edit}])
 

@@ -15,9 +15,11 @@
 (defn jobs []
   (let [jobs (re-frame/subscribe [:jobs])]
     (fn []
-      [:ul
-        (for [job (seq @jobs)]
-          (job-li (last job)))])))
+      [:div
+        [:a {:href (url-for :new)} "Add job"]
+        [:ul
+          (for [job (seq @jobs)]
+            (job-li (last job)))]])))
 
 (defn show [params]
   (let [id (:id params)
@@ -35,9 +37,35 @@
   (fn []
     [:a {:href (url-for :list)} "Back to listing"]))
 
+(defn text-field [label]
+  (let [val (re-frame/subscribe [:edit-form label])
+        evt #(re-frame/dispatch [:update-job-form label (-> % .-target .-value)])]
+    [:label
+      (str/capitalize (name label))
+      [:input {:value @val :type "text" :on-change evt}]]))
+
+(defn new []
+  (fn []
+    (let [status @(re-frame/subscribe [:job-service-status])]
+      [:div
+        [:form
+          [text-field :title]
+          [text-field :company]
+          [text-field :keywords]
+          [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
+          (case status
+            :ok [:div "Job added!"]
+            :loading [:div "Creating new job ..."]
+            :error [:div "There was an error when creating the job."]
+            :init [:div])]
+        [:a {:href (url-for :list)} "Back to listing"]])))
+
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
 (defmethod routes :edit [_ params] [edit params])
+(defmethod routes :new [_ params] (do
+                                    (re-frame/dispatch [:reset-job-service-status])
+                                    [new params]))
 (defmethod routes :default [] [jobs])
 
 (defn main []

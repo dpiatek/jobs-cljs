@@ -60,12 +60,13 @@
   {:job (find-job req)})
 
 (defmethod dispatch! :create-job
-  [{:keys [route-params params] :as req}]
+  [{:keys [body] :as req}]
   (let [id    (swap! jobid inc)
+        data (json/parse-stream (clojure.java.io/reader body) #(keyword %))
         job   {:id       id
-               :title    (:title params)
-               :company  (:company params)
-               :keywords (->vec (:keywords params))}]
+               :title    (:title data)
+               :company  (:company data)
+               :keywords (->vec (:keywords data))}]
     (with-meta
       {:job (get (swap! state assoc id job) id)}
       {::status-code 201})))
