@@ -29,12 +29,9 @@
       [:div title]
       [:div company]
       [:div (str/join ", " keywords)]
+      [:button {:type "button" :on-click #(re-frame/dispatch [:edit-job id])} "Edit job"]
       [:button {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
       [:a {:href (url-for :list)} "Back to listing"]]))
-
-(defn edit []
-  (fn []
-    [:a {:href (url-for :list)} "Back to listing"]))
 
 (defn text-field [label]
   (let [val (re-frame/subscribe [:edit-form label])
@@ -42,6 +39,16 @@
     [:label
       (str/capitalize (name label))
       [:input {:value @val :type "text" :on-change evt}]]))
+
+(defn edit [{:keys [id]}]
+  (fn []
+    [:div
+      [:form
+        [text-field :title]
+        [text-field :company]
+        [text-field :keywords]
+        [:button {:type "button" :on-click #(re-frame/dispatch [:submit-job-update id])} "Submit"]
+        [:a {:href (url-for :list)} "Back to listing"]]]))
 
 (defn new []
   (fn []

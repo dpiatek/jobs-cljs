@@ -77,12 +77,13 @@
     (with-meta {:jobs (swap! state dissoc id)} {::status-code 204})))
 
 (defmethod dispatch! :update-job
-  [{:keys [params] :as req}]
+  [{:keys [body] :as req}]
   (let [prev    (find-job req)
+        data (json/parse-stream (clojure.java.io/reader body) #(keyword %))
         id      (:id prev)
-        updates {:company  (:company params)
-                 :title    (:title params)
-                 :keywords (:keywords params)}]
+        updates {:company  (:company data)
+                 :title    (:title data)
+                 :keywords (:keywords data)}]
     {:jobs (get (swap! state update id merge updates) id)}))
 
 (defmethod dispatch! :default

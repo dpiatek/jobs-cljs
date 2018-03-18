@@ -98,3 +98,35 @@
   (fn
     [db [_ {:keys [jobs]} response]]
     db))
+
+(re-frame/reg-event-fx
+  :edit-job
+  (fn [{db :db} [_ id]]
+    {:db (assoc db :job-form (get (:jobs db) (keyword id)))
+     :dispatch [:set-active-route {:route-params {:id id}, :handler :edit}]}))
+
+(re-frame/reg-event-fx
+  :submit-job-update
+  (fn
+    [{db :db} [_ id]]
+    {:http-xhrio {:method          :put
+                  :uri             (str "/jobs/" id)
+                  :params          (:job-form db)
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [:process-update-response (:job-form db) id]
+                  :on-failure      [:failed-update-response]}}))
+
+(re-frame/reg-event-db
+  :process-update-response
+  (fn
+    [{:keys [jobs] :as db} [_ job id]]
+    (-> db
+      (assoc :jobs (assoc jobs (keyword id) job))
+      (assoc :job-form {}))))
+
+(re-frame/reg-event-db
+  :failed-update-response
+  (fn
+    [db [_ {:keys [jobs]} response]]
+    db))
