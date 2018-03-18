@@ -40,11 +40,16 @@
       (str/capitalize (name label))
       [:input {:value @val :type "text" :on-change evt}]]))
 
+(defn keyword-handler [event]
+  (if (= (-> event .-key) "Enter")
+    (do
+      (re-frame/dispatch [:add-job-keyword (-> event .-target .-value)])
+      (set! (-> event .-target .-value) ""))))
+
 (defn keyword-field []
-  (let [evt #(if (= (-> % .-key) "Enter") (re-frame/dispatch [:add-job-keyword (-> % .-target .-value)]))]
-    [:label
-      "Add keyword"
-      [:input {:type "text" :on-key-down evt}]]))
+  [:label
+    "Keywords"
+    [:input {:type "text" :on-key-down keyword-handler :placeholder "Press enter to add"}]])
 
 (defn keywords-list []
   (let [val (re-frame/subscribe [:edit-form :keywords])]
@@ -74,7 +79,8 @@
       [:form
         [text-field :title]
         [text-field :company]
-        [text-field :keywords]
+        [keyword-field]
+        [keywords-list]
         [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
         [:a {:href (url-for :list)} "Back to listing"]]]))
 
