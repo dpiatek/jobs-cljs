@@ -20,6 +20,21 @@
   (fn [{job-form :job-form :as db} [_ label val]]
     (assoc db :job-form (assoc job-form label val))))
 
+(defn add-uniq [keywords val]
+  (vec (conj (set keywords) val)))
+
+(re-frame/reg-event-db
+  :add-job-keyword
+  (fn [{job-form :job-form :as db} [_ val]]
+    (assoc db :job-form
+      (assoc job-form :keywords (add-uniq (:keywords job-form) val)))))
+
+(re-frame/reg-event-db
+  :delete-job-keyword
+  (fn [{job-form :job-form :as db} [_ val]]
+    (assoc db :job-form
+      (assoc job-form :keywords (remove #{val} (:keywords job-form))))))
+
 (re-frame/reg-event-fx
   :fetch-jobs
   (fn [{db :db} _]
@@ -111,15 +126,15 @@
                   :params          (:job-form db)
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [:process-update-response (:job-form db) id]
+                  :on-success      [:process-update-response]
                   :on-failure      [:failed-update-response]}}))
 
 (re-frame/reg-event-db
   :process-update-response
   (fn
-    [{:keys [jobs] :as db} [_ job id]]
+    [db [_ job]]
     (-> db
-      (assoc :jobs (assoc jobs (keyword id) job))
+      (assoc :jobs (merge (:jobs db) job))
       (assoc :job-form {}))))
 
 (re-frame/reg-event-db
@@ -127,3 +142,9 @@
   (fn
     [db [_ _]]
     db))
+
+(re-frame/reg-event-db
+  :reset-form
+  (fn
+    [db [_ _]]
+    (assoc db :job-form {})))

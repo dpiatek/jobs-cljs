@@ -40,13 +40,31 @@
       (str/capitalize (name label))
       [:input {:value @val :type "text" :on-change evt}]]))
 
+(defn keyword-field []
+  (let [evt #(if (= (-> % .-key) "Enter") (re-frame/dispatch [:add-job-keyword (-> % .-target .-value)]))]
+    [:label
+      "Add keyword"
+      [:input {:type "text" :on-key-down evt}]]))
+
+(defn keywords-list []
+  (let [val (re-frame/subscribe [:edit-form :keywords])]
+    [:ul
+      (for [kw @val]
+        ^{:key kw}
+        [:li
+          [:label
+            kw
+            [:button {:type "button"
+                      :on-click #(re-frame/dispatch [:delete-job-keyword kw])} "X"]]])]))
+
 (defn edit [{:keys [id]}]
   (fn []
     [:div
       [:form
         [text-field :title]
         [text-field :company]
-        [text-field :keywords]
+        [keyword-field]
+        [keywords-list]
         [:button {:type "button" :on-click #(re-frame/dispatch [:submit-job-update id])} "Submit"]
         [:a {:href (url-for :list)} "Back to listing"]]]))
 
@@ -63,7 +81,7 @@
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
 (defmethod routes :edit [_ params] [edit params])
-(defmethod routes :new [_ params] [new params])
+(defmethod routes :new [_ params] (do (re-frame/dispatch [:reset-form]) [new params]))
 (defmethod routes :default [] [jobs])
 
 (defn main []

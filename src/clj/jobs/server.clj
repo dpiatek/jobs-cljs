@@ -84,7 +84,7 @@
         updates {:company  (:company data)
                  :title    (:title data)
                  :keywords (:keywords data)}]
-    {:jobs (get (swap! state update id merge updates) id)}))
+    {id (get (swap! state update id merge updates) id)}))
 
 (defmethod dispatch! :default
   [_]
