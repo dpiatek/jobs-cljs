@@ -4,19 +4,31 @@
             [jobs.routes :refer [url-for]]
             [jobs.subs :as subs]))
 
-(defn jobs-list []
+(defn job-li [{:keys [id title company keywords]}]
+  ^{:key id}
+  [:li
+    [:a {:href (url-for :show :id id)} title]
+    [:div company]
+    [:div
+      (str/join ", " keywords)]])
+
+(defn jobs []
   (let [jobs (re-frame/subscribe [:jobs])]
     (fn []
       [:ul
-        (for [job (seq @jobs) :let [id (:id (last job))]]
-          ^{:key id} [:li
-                      [:a {:href (url-for :show :id id)} "Show job" id]])])))
+        (for [job (seq @jobs)]
+          (job-li (last job)))])))
 
 (defn show [params]
-  (let [jobs (re-frame/subscribe [:jobs])]
+  (let [id (:id params)
+        jobs (re-frame/subscribe [:jobs])
+        {:keys [title company keywords]} (get @jobs (keyword id))]
     (fn []
       [:div
-        [:div (:id params)]
+        [:div title]
+        [:div company]
+        [:div
+          (str/join ", " keywords)]
         [:a {:href (url-for :list)} "Back to listing"]])))
 
 (defn edit []
@@ -26,7 +38,7 @@
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
 (defmethod routes :edit [_ params] [edit params])
-(defmethod routes :default [] [jobs-list])
+(defmethod routes :default [] [jobs])
 
 (defn main []
   (let [active-route (re-frame/subscribe [:active-route])]
