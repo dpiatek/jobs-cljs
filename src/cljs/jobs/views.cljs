@@ -24,6 +24,7 @@
 (defn show [params]
   (let [id (:id params)
         jobs (re-frame/subscribe [:jobs])
+        status @(re-frame/subscribe [:delete-status])
         {:keys [title company keywords]} (get @jobs (keyword id))]
     (fn []
       [:div
@@ -31,6 +32,7 @@
         [:div company]
         [:div
           (str/join ", " keywords)]
+        [:button {:type "button" :on-click #(re-frame/dispatch [:delete-job id])} "Delete job"]
         [:a {:href (url-for :list)} "Back to listing"]])))
 
 (defn edit []
@@ -46,7 +48,7 @@
 
 (defn new []
   (fn []
-    (let [status @(re-frame/subscribe [:job-service-status])]
+    (let [status @(re-frame/subscribe [:create-status])]
       [:div
         [:form
           [text-field :title]
@@ -54,7 +56,7 @@
           [text-field :keywords]
           [:button {:type "button" :on-click #(re-frame/dispatch [:submit-new-job])} "Submit"]
           (case status
-            :ok [:div "Job added!"]
+            :ok [:div "Job added"]
             :loading [:div "Creating new job ..."]
             :error [:div "There was an error when creating the job."]
             :init [:div])]
@@ -63,9 +65,7 @@
 (defmulti routes identity)
 (defmethod routes :show [_ params] [show params])
 (defmethod routes :edit [_ params] [edit params])
-(defmethod routes :new [_ params] (do
-                                    (re-frame/dispatch [:reset-job-service-status])
-                                    [new params]))
+(defmethod routes :new [_ params] [new params])
 (defmethod routes :default [] [jobs])
 
 (defn main []
