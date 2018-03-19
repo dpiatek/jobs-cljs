@@ -1,6 +1,5 @@
 (ns jobs.routes
   (:require [re-frame.core :as re-frame]
-            [jobs.events   :as events]
             [bidi.bidi     :as bidi]
             [pushy.core    :as pushy]))
 
@@ -15,7 +14,9 @@
 (defn- dispatch-route [matched-route]
   (re-frame/dispatch [:set-active-route matched-route]))
 
+(def history (pushy/pushy dispatch-route parse-url))
+
 (defn app-routes []
-  (pushy/start! (pushy/pushy dispatch-route parse-url)))
+  (pushy/start! history))
 
 (def url-for (partial bidi/path-for routes))

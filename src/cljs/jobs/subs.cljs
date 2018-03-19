@@ -21,3 +21,9 @@
   :edit-form
   (fn [db [_ label]]
     (label (:job-form db))))
+
+(re-frame/reg-sub
+  :field-errors
+  (fn [db [_ label]]
+    (label (:field-errors db))))
+

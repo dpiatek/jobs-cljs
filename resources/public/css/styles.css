@@ -34,6 +34,10 @@ body {
   cursor: pointer;
 }
 
+.btn:active, .btn:focus {
+  outline: 1px solid white;
+}
+
 .th-secondary-btn {
   background-color: #aaa;
   border-right: 0;
@@ -117,6 +121,14 @@ body {
   display: block;
 }
 
+.text-field-error {
+  background-color: red;
+  color: white;
+  font-weight: 400;
+  padding: 5px;
+  margin: 10px 0;
+}
+
 .text-field input {
   display: block;
   margin-top: 5px;
@@ -133,12 +145,6 @@ body {
 .text-field input:focus {
   border: 1px solid lightgreen;
   outline: none;
-}
-
-.text-field span {
-  margin-left: 5px;
-  color: #999;
-  font-style: italic;
 }
 
 .keywords-list {
@@ -163,6 +169,11 @@ body {
   position: relative;
   top: 2px;
   line-height: 1;
+}
+
+.keywords-li button:focus, .keywords-li button:active {
+  color: #800000;
+  outline: none;
 }
 
 .ut-no-link {

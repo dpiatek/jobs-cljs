@@ -38,10 +38,14 @@
 
 (defn text-field [label]
   (let [val (re-frame/subscribe [:edit-form label])
-        evt #(re-frame/dispatch [:update-job-form label (-> % .-target .-value)])]
+        evt #(re-frame/dispatch [:update-job-form label (-> % .-target .-value)])
+        field-name (str/capitalize (name label))
+        field-error @(re-frame/subscribe [:field-errors label])]
     [:label.text-field
-      (str/capitalize (name label))
-      [:input {:value @val :type "text" :on-change evt :required true}]]))
+      field-name
+      [:input {:value @val :type "text" :on-change evt :required true}]
+      (if field-error
+        [:div.text-field-error (str field-name " is required")])]))
 
 (defn keyword-handler [event]
   (if (= (-> event .-key) "Enter")
@@ -50,10 +54,12 @@
       (set! (-> event .-target .-value) ""))))
 
 (defn keyword-field []
-  [:label.text-field
-    "Keywords"
-    [:span "(optional)"]
-    [:input {:type "text" :on-key-down keyword-handler :placeholder "Press Enter to add"}]])
+  (let [field-error @(re-frame/subscribe [:field-errors :keywords])]
+    [:label.text-field
+      "Keywords"
+      [:input {:type "text" :on-key-down keyword-handler :placeholder "Press Enter to add"}]
+      (if field-error
+        [:div.text-field-error "Keywords are required"])]))
 
 (defn keywords-list []
   (let [val (re-frame/subscribe [:edit-form :keywords])]
