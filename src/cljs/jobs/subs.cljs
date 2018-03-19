@@ -18,6 +18,11 @@
     (:jobs-service-status db)))
 
 (re-frame/reg-sub
+  :jobs-service-error
+  (fn [db _]
+    (:jobs-service-error db)))
+
+(re-frame/reg-sub
   :edit-form
   (fn [db [_ label]]
     (label (:job-form db))))

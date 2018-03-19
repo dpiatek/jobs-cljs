@@ -12,6 +12,16 @@ body {
   padding: 10px;
 }
 
+.container-loading {
+  text-align: center;
+}
+
+.container-error {
+  text-align: center;
+  background-color: red;
+  color: white;
+}
+
 .title {
   padding: 10px;
   margin: 0;

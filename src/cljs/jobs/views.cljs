@@ -112,8 +112,9 @@
           [routes handler route-params]]))))
 
 (defn top []
-  (let [jobs-service-status  (re-frame.core/subscribe [:jobs-service-status])]
+  (let [jobs-service-status  (re-frame.core/subscribe [:jobs-service-status])
+        jobs-service-error @(re-frame.core/subscribe [:jobs-service-error])]
     (case @jobs-service-status
       :ok [main]
-      :loading [:div "Loading jobs ..."]
-      :error [:div "Error loading jobs."])))
+      :loading [:div.container.container-loading "Loading jobs ..."]
+      :error [:div.container.container-error (str "Error loading jobs. The api failed with: " jobs-service-error)])))

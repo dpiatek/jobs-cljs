@@ -69,17 +69,26 @@
 (re-frame/reg-event-db
   :process-jobs-response
   (fn
-    [db [_ {jobs :jobs}]]
+    [db [_ {jobs :jobs :as response}]]
     (-> db
       (assoc :jobs-service-status :ok)
-      (assoc :jobs jobs))))
+      (assoc :jobs jobs)
+      (assoc :jobs-service-error nil))))
 
 (re-frame/reg-event-db
+  :update-service-error-message
+  (fn
+    [db [_ error-msg]]
+    (-> db
+      (assoc :jobs-service-error error-msg))))
+
+(re-frame/reg-event-fx
   :failed-jobs-response
   (fn
-    [db [_ _]]
-    (-> db
-      (assoc :jobs-service-status :error))))
+    [{db :db} [_ {error-msg :last-error}]]
+    {:db (-> db
+          (assoc :jobs-service-status :error))
+     :dispatch [:update-service-error-message error-msg]}))
 
 (re-frame/reg-event-fx
   :submit-new-job
