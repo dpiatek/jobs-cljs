@@ -18,9 +18,9 @@
     (:jobs-service-status db)))
 
 (re-frame/reg-sub
-  :jobs-service-error
+  :notification
   (fn [db _]
-    (:jobs-service-error db)))
+    (:notification db)))
 
 (re-frame/reg-sub
   :edit-form

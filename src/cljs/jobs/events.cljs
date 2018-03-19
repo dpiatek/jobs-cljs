@@ -11,7 +11,7 @@
 (s/def ::title    (and string? (complement str/blank?)))
 (s/def ::company  (and string? (complement str/blank?)))
 (s/def ::keyword  string?)
-(s/def ::keywords (s/coll-of ::keyword))
+(s/def ::keywords (s/coll-of ::keyword :min-count 1))
 (s/def ::id       pos-int?)
 (s/def ::id-str   (and string? (partial re-matches #"\d+")))
 (s/def ::job      (s/keys :req-un [::id ::title ::company ::keywords]))
@@ -55,6 +55,23 @@
     (assoc db :job-form
       (assoc job-form :keywords (remove #{val} (:keywords job-form))))))
 
+(re-frame/reg-event-db
+  :notify
+  (fn
+    [db [_ notification]]
+    (-> db
+      (assoc :notification notification))))
+
+(re-frame/reg-event-db
+  :clear-notification
+  (fn
+    [db [_ _]]
+    (-> db
+      (assoc :notification {}))))
+
+(defn jobs-error [db]
+  (assoc db :jobs-service-status :error))
+
 (re-frame/reg-event-fx
   :fetch-jobs
   (fn [{db :db} _]
@@ -63,7 +80,7 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [:process-jobs-response]
-                  :on-failure      [:failed-jobs-response]}
+                  :on-failure      [:failed-response "Loading jobs failed: " jobs-error]}
      :db  (assoc db :jobs-service-status :loading)}))
 
 (re-frame/reg-event-db
@@ -73,22 +90,14 @@
     (-> db
       (assoc :jobs-service-status :ok)
       (assoc :jobs jobs)
-      (assoc :jobs-service-error nil))))
-
-(re-frame/reg-event-db
-  :update-service-error-message
-  (fn
-    [db [_ error-msg]]
-    (-> db
-      (assoc :jobs-service-error error-msg))))
+      (assoc :notification {}))))
 
 (re-frame/reg-event-fx
-  :failed-jobs-response
+  :failed-response
   (fn
-    [{db :db} [_ {error-msg :last-error}]]
-    {:db (-> db
-          (assoc :jobs-service-status :error))
-     :dispatch [:update-service-error-message error-msg]}))
+    [{db :db} [_ msg state-change {error :last-error}]]
+    {:db (state-change db)
+     :dispatch [:notify {:msg (str msg error) :state :error}]}))
 
 (re-frame/reg-event-fx
   :submit-new-job
@@ -101,7 +110,7 @@
                     :format          (ajax/json-request-format)
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [:process-job-response]
-                    :on-failure      [:failed-job-response]}}
+                    :on-failure      [:failed-response "Creating a job failed: " identity]}}
       {:db (assoc db :field-errors (field-errors db ::new-job))})))
 
 (re-frame/reg-event-fx
@@ -111,15 +120,10 @@
     (pushy/set-token! routes/history (routes/url-for :list))
     {:db (-> db
           (assoc :job-form {})
+          (assoc :notification {})
           (assoc :field-errors {})
           (assoc-in [:jobs (keyword (str (:id job)))] job))
-     :dispatch [:set-active-route {:route-params {:id (:id job)} :handler :sho}]}))
-
-(re-frame/reg-event-db
-  :failed-job-response
-  (fn
-    [db [_ _]]
-    db))
+     :dispatch [:set-active-route {:handler :list}]}))
 
 (re-frame/reg-event-fx
   :delete-job
@@ -130,29 +134,17 @@
                   :format          (ajax/json-request-format)
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [:process-delete-response id]
-                  :on-failure      [:failed-delete-response]}}))
-
-(re-frame/reg-event-db
-  :process-delete-response
-  (fn
-    [{jobs :jobs :as db} [_ id response]]
-    (pushy/set-token! routes/history (routes/url-for :list))
-    (-> db
-      (assoc :jobs (dissoc jobs (keyword id))))))
+                  :on-failure      [:failed-response "Deletion failed: " identity]}}))
 
 (re-frame/reg-event-fx
   :process-delete-response
   (fn
     [{db :db} [_ id]]
     (pushy/set-token! routes/history (routes/url-for :list))
-    {:db (assoc db :jobs (dissoc (:jobs db) (keyword id)))
+    {:db (-> db
+          (assoc :jobs (dissoc (:jobs db) (keyword id)))
+          (assoc :notification {}))
      :dispatch [:set-active-route {:handler :list}]}))
-
-(re-frame/reg-event-db
-  :failed-delete-response
-  (fn
-    [db [_ _]]
-    db))
 
 (re-frame/reg-event-fx
   :edit-job
@@ -172,7 +164,7 @@
                     :format          (ajax/json-request-format)
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [:process-update-response]
-                    :on-failure      [:failed-update-response]}}
+                    :on-failure      [:failed-response "Update failed: " identity]}}
       {:db (assoc db :field-errors (field-errors db ::job))})))
 
 (re-frame/reg-event-fx
@@ -183,14 +175,9 @@
     {:db (-> db
           (assoc :jobs (merge (:jobs db) job))
           (assoc :job-form {})
-          (assoc :field-errors {}))
+          (assoc :field-errors {})
+          (assoc :notification {}))
      :dispatch [:set-active-route {:handler :list}]}))
-
-(re-frame/reg-event-db
-  :failed-update-response
-  (fn
-    [db [_ _]]
-    db))
 
 (re-frame/reg-event-db
   :reset-form

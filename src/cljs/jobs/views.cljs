@@ -104,17 +104,26 @@
 (defmethod routes :new [_ params] (do (re-frame/dispatch [:reset-form]) [new params]))
 (defmethod routes :default [] [jobs])
 
+(defn notification []
+  (let [notification @(re-frame/subscribe [:notification])
+        notification-css (case (:state notification)
+                           :error :div.notification.notification-error
+                           :div.notification)]
+    (if-not (empty? notification)
+      [notification-css (:msg notification) [:span {:on-click #(re-frame/dispatch [:clear-notification])} "×"]])))
+
 (defn main []
   (let [active-route (re-frame/subscribe [:active-route])]
     (fn []
       (let [{:keys [handler route-params]} @active-route]
         [:div.container
+          [notification]
           [routes handler route-params]]))))
 
 (defn top []
   (let [jobs-service-status  (re-frame.core/subscribe [:jobs-service-status])
-        jobs-service-error @(re-frame.core/subscribe [:jobs-service-error])]
+        notification @(re-frame/subscribe [:notification])]
     (case @jobs-service-status
       :ok [main]
-      :loading [:div.container.container-loading "Loading jobs ..."]
-      :error [:div.container.container-error (str "Error loading jobs. The api failed with: " jobs-service-error)])))
+      :loading [:div.notification "Loading jobs ..."]
+      :error [:div.notification.notification-error (:msg notification)])))

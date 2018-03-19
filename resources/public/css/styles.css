@@ -12,14 +12,32 @@ body {
   padding: 10px;
 }
 
-.container-loading {
+.notification {
+  max-width: 560px;
+  margin: 10px auto;
+  background-color: #eaeaea;
+  padding: 10px;
   text-align: center;
+  position: relative;
 }
 
-.container-error {
-  text-align: center;
+.notification-error {
   background-color: red;
   color: white;
+}
+
+.notification span {
+  font-size: 26px;
+  line-height: 1;
+  position: absolute;
+  bottom: 4px;
+  right: 10px;
+  top: 5px;
+  cursor: pointer;
+}
+
+.api-error {
+  padding: 10px;
 }
 
 .title {
